@@ -70,9 +70,10 @@ function transitionSkillState(stats: SkillStats): SkillStats {
 
   // RECOVERY ─────────────────────────────────────────────────────────────────
 
-  // RECOVERY_REQUIRED_CORRECT of last RECOVERY_WINDOW correct while in support mode → improving
+  // All RECOVERY_WINDOW slots must be filled AND RECOVERY_REQUIRED_CORRECT correct → improving.
+  // Using === RECOVERY_WINDOW (not >=) prevents early recovery on partial windows.
   if (
-    recentTotal >= RECOVERY_REQUIRED_CORRECT &&
+    recentTotal === RECOVERY_WINDOW &&
     recentCorrect >= RECOVERY_REQUIRED_CORRECT &&
     (stats.state === "needs_support" || stats.state === "guided_practice")
   ) {

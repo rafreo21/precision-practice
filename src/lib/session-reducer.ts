@@ -73,16 +73,9 @@ export function sessionReducer(state: SessionState, action: SessionAction): Sess
         : state.mainQuestionCount + 1;
 
       if (result.wasCorrect) {
-        const isSessionDone = newMainCount >= SESSION_MAIN_QUESTION_TARGET;
-        if (isSessionDone) {
-          return {
-            ...state,
-            ...result.updatedState,
-            phase: "summary",
-            questionIndex: state.questionIndex + 1,
-            mainQuestionCount: newMainCount,
-          };
-        }
+        // Always show feedback so the student can read the correct explanation
+        // before moving on — even on the final question. The CONTINUE handler
+        // checks mainQuestionCount and transitions to summary from there.
         return {
           ...state,
           ...result.updatedState,

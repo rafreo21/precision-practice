@@ -116,7 +116,7 @@ export function calculateSessionSummary(
     : "Keep mixing all skill types for balanced practice.";
 
   return {
-    questionsCompleted: state.answers.length,
+    questionsCompleted: state.mainQuestionCount,
     strongestImprovement,
     improvedSkill,
     concreteMetric,

@@ -54,6 +54,12 @@ export function QuestionStage({ state, onSelectAnswer }: QuestionStageProps) {
             Let&rsquo;s work through this one carefully.
           </span>
         ) : null}
+        {/* Retry context — shown when this is a practice repeat, not a new question */}
+        {state.currentQuestionIsRetry ? (
+          <span className="text-[12px] text-slate-400 font-medium">
+            One similar comparison for practice.
+          </span>
+        ) : null}
       </div>
 
       {/* Prompt */}
@@ -63,6 +69,15 @@ export function QuestionStage({ state, onSelectAnswer }: QuestionStageProps) {
         </h2>
         <p className="text-[13px] text-slate-500">Select one to continue</p>
       </div>
+
+      {/* Rushing nudge — appears when the rolling window detects consistently fast wrong answers */}
+      {state.engagementState === "rushing" ? (
+        <div className="px-3 py-2 bg-slate-50 rounded-lg border border-slate-100">
+          <p className="text-[12px] text-slate-500 leading-relaxed">
+            Take a moment to compare the values before choosing.
+          </p>
+        </div>
+      ) : null}
 
       {/* Fraction choices */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4">

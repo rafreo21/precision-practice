@@ -56,12 +56,14 @@ export function processAnswer(
     state.feedbackSkipCount
   );
 
-  // Determine if we should queue a retry question (only after a wrong answer with a clear misconception)
+  // Queue a retry for any wrong answer — including "unclear" misconceptions.
+  // A second attempt on the same skill type is always useful, even when we
+  // can't pinpoint the exact error pattern.  The only exception is the
+  // guessing/low-engagement state, where more questions won't help.
   let queuedRetryId: string | null = null;
   if (
     !wasCorrect &&
-    misconception &&
-    misconception !== "unclear" &&
+    misconception !== null &&
     misconception !== "guessing_or_low_engagement"
   ) {
     queuedRetryId = findRetryQuestion(question, [...state.answeredQuestionIds, question.id]);

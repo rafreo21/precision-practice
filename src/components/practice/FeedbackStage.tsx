@@ -5,8 +5,24 @@ import { Separator } from "@/components/ui/separator";
 import { FractionBarPair } from "./FractionBar";
 import { NumberLine } from "./NumberLine";
 import { FractionChoice } from "./FractionChoice";
-import type { SessionState } from "@/lib/types";
+import type { SessionState, SkillType } from "@/lib/types";
 import { GUESSING_RESET_COPY } from "@/lib/anti-guessing";
+
+// Count how many of the most recent answers are wrong on the same skill type.
+// Used to detect a repeated-failure streak and trigger an emotional reset prompt.
+function countConsecutiveSameSkillMisses(state: SessionState, skill: SkillType): number {
+  const answers = state.answers;
+  let count = 0;
+  for (let i = answers.length - 1; i >= 0; i--) {
+    const a = answers[i];
+    if (!a.correct && a.skillType === skill) {
+      count++;
+    } else {
+      break;
+    }
+  }
+  return count;
+}
 
 interface FeedbackStageProps {
   state: SessionState;
@@ -189,6 +205,12 @@ export function FeedbackStage({ state, onContinue }: FeedbackStageProps) {
   const isLightFeedback = !wasCorrect && feedback?.supportLevel === 0;
   const isFullFeedback = !wasCorrect && feedback !== null && (feedback.supportLevel ?? 0) >= 1;
 
+  // Repeated-failure detection: 3+ consecutive wrong answers on the same skill
+  const consecutiveMisses = !wasCorrect
+    ? countConsecutiveSameSkillMisses(state, question.type)
+    : 0;
+  const showPausePattern = consecutiveMisses >= 3;
+
   return (
     <div className="flex flex-col gap-5 w-full max-w-lg">
       {/* 1. Answer review */}
@@ -211,19 +233,46 @@ export function FeedbackStage({ state, onContinue }: FeedbackStageProps) {
         <FullFeedback state={state} />
       ) : null}
 
-      {/* CTA — only shown for wrong answers; correct auto-advances */}
-      {wasCorrect !== true ? (
-        <div className="pt-1">
-          <Button
-            onClick={onContinue}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium tracking-[-0.01em]"
-          >
-            {state.queuedRetryQuestionId !== null ? "Try a similar one" : "Continue"}
-          </Button>
+      {/* 5. Repeated-failure emotional reset — calm, non-shaming */}
+      {showPausePattern ? (
+        <div className="flex flex-col gap-1.5 p-4 bg-slate-50 rounded-xl border border-slate-100">
+          <p className="text-[13px] font-semibold text-slate-700 tracking-[-0.01em]">
+            Pause the pattern.
+          </p>
+          <p className="text-[13px] text-slate-500 leading-relaxed">
+            You&rsquo;ve missed a few of these in a row — that&rsquo;s a useful signal. Take a breath
+            before the next one. Reading the explanation above carefully often helps.
+          </p>
         </div>
-      ) : (
-        <p className="text-[12px] text-slate-400 pt-1">Continuing…</p>
-      )}
+      ) : null}
+
+      {/* 6. Feedback-skipping nudge — shown when student is clicking past explanations quickly */}
+      {state.engagementState === "feedback_skipping" && !wasCorrect ? (
+        <div className="px-3 py-2 bg-slate-50 rounded-lg border border-slate-100">
+          <p className="text-[12px] text-slate-400 leading-relaxed">
+            This explanation is short — worth a quick read before the next one.
+          </p>
+        </div>
+      ) : null}
+
+      {/* CTA — shown for all answers so the student controls the pace */}
+      <div className="pt-1">
+        <Button
+          onClick={onContinue}
+          className={
+            wasCorrect === true
+              ? "border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-800 rounded-xl font-medium tracking-[-0.01em] shadow-none"
+              : "bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium tracking-[-0.01em]"
+          }
+          variant={wasCorrect === true ? "outline" : "default"}
+        >
+          {wasCorrect === true
+            ? "Continue"
+            : state.queuedRetryQuestionId !== null
+            ? "Try a similar one"
+            : "Continue"}
+        </Button>
+      </div>
     </div>
   );
 }

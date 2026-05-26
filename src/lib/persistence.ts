@@ -61,6 +61,9 @@ export function clearSession(): void {
 // ── History (completed sessions) ─────────────────────────────────────────────
 
 export function saveHistory(state: SessionState): void {
+  // Don't save zero-question sessions — they produce misleading history entries
+  // (e.g. student opens the app, immediately exits without answering anything).
+  if (state.mainQuestionCount === 0) return;
   const existing = loadHistory();
   const entry: SessionHistory = {
     sessionId: state.sessionId,

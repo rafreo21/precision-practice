@@ -49,6 +49,12 @@ export function IntroStage({ onStart, savedSession, onResume }: IntroStageProps)
             You&apos;ll get support when needed.
           </span>
         </div>
+        <div className="flex items-center gap-2.5">
+          <div className="w-1 h-1 rounded-full bg-slate-300" />
+          <span className="text-[13px] text-slate-500">
+            Practice adjusts as you go — support appears when patterns suggest it&apos;s useful.
+          </span>
+        </div>
       </div>
 
       {/* CTAs */}
