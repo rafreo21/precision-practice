@@ -113,6 +113,8 @@ export interface FeedbackContent {
 
 export interface SessionSummary {
   questionsCompleted: number;
+  /** Total answer attempts including adaptive practice repeats (answers.length). */
+  totalAttempts: number;
   strongestImprovement: string;
   improvedSkill: SkillType | null;
   concreteMetric: string;

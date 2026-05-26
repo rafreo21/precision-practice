@@ -121,6 +121,17 @@ export function SummaryStage({ summary, totalQuestions, onReset }: SummaryStageP
   const overallTotal = summary.skillBreakdowns.reduce((s, b) => s + b.total, 0);
   const attempted = summary.skillBreakdowns.filter((b) => b.total > 0);
 
+  // Adaptive repeats = total answer attempts minus the 12 main questions.
+  // These are practice-reinforcement rounds triggered by the adaptive engine,
+  // not extra questions or penalties — the copy reflects that framing.
+  const adaptiveRepeats = summary.totalAttempts - summary.questionsCompleted;
+  const correctHelperText =
+    adaptiveRepeats === 1
+      ? "Includes 1 adaptive practice repeat"
+      : adaptiveRepeats > 1
+      ? `Includes ${adaptiveRepeats} adaptive practice repeats`
+      : undefined;
+
   // Emotional headline
   const improvedLabel = summary.improvedSkill
     ? SKILL_LABELS[summary.improvedSkill].toLowerCase()
@@ -160,6 +171,7 @@ export function SummaryStage({ summary, totalQuestions, onReset }: SummaryStageP
           label="Correct"
           value={`${overallCorrect}/${overallTotal}`}
           sublabel={`${Math.round((overallCorrect / Math.max(overallTotal, 1)) * 100)}% accuracy`}
+          helperText={correctHelperText}
         />
       </div>
 

@@ -68,7 +68,7 @@ export function saveHistory(state: SessionState): void {
   const entry: SessionHistory = {
     sessionId: state.sessionId,
     completedAt: Date.now(),
-    questionsCompleted: state.answers.length,
+    questionsCompleted: state.mainQuestionCount,
     skillBreakdowns: (["same_denominator", "same_numerator", "benchmark", "unlike_fractions"] as const).map(
       (skill) => ({
         skill,

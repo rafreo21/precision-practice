@@ -117,6 +117,7 @@ export function calculateSessionSummary(
 
   return {
     questionsCompleted: state.mainQuestionCount,
+    totalAttempts: state.answers.length,
     strongestImprovement,
     improvedSkill,
     concreteMetric,
